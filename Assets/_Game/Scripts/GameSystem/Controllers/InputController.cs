@@ -10,6 +10,7 @@ public class InputController : MonoBehaviour
     public event Action PressedLeft = delegate { };
     public event Action PressedRight = delegate { };
     public event Action PressedUp = delegate { };
+    public event Action PressedDown = delegate { };
 
     void Update()
     {
@@ -22,7 +23,7 @@ public class InputController : MonoBehaviour
 
     private void DetectConfirm()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) || Input.GetKeyDown(KeyCode.Z))
         {
             PressedConfirm?.Invoke();
         }
@@ -30,7 +31,7 @@ public class InputController : MonoBehaviour
 
     private void DetectCancel()
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.X))
         {
             PressedCancel?.Invoke();
         }
@@ -38,7 +39,7 @@ public class InputController : MonoBehaviour
 
     private void DetectLeft()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
         {
             PressedLeft?.Invoke();
         }
@@ -46,7 +47,7 @@ public class InputController : MonoBehaviour
 
     private void DetectRight()
     {
-        if (Input.GetKeyDown(KeyCode.D))
+        if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
         {
             PressedRight?.Invoke();
         }
@@ -54,9 +55,17 @@ public class InputController : MonoBehaviour
 
     private void DetectUp()
     {
-        if (Input.GetKeyDown(KeyCode.W))
+        if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
         {
             PressedUp?.Invoke();
+        }
+    }
+
+    private void DetectDown()
+    {
+        if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
+        {
+            PressedDown?.Invoke();
         }
     }
 }

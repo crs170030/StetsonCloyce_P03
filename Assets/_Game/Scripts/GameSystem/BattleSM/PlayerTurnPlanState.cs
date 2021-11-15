@@ -5,8 +5,14 @@ using UnityEngine.UI;
 
 public class PlayerTurnPlanState : BattleState
 {
-    [SerializeField] Text _playerTurnTextUI = null;
+    [SerializeField] GameObject _playerUI = null;
+    [SerializeField] Text _playerTurnTextUI = null; //TODO: Remove Text UI?
     [SerializeField] Text _playerChoiceTextUI = null;
+    [SerializeField] Image _attackButton = null;
+    [SerializeField] Image _magicButton = null;
+    [SerializeField] Image _defendButton = null;
+    [SerializeField] Image _selectionBorder = null;
+
     //[SerializeField] float _damageAmount = 25f;
 
     int _playerTurnCount = 0;
@@ -14,8 +20,7 @@ public class PlayerTurnPlanState : BattleState
     public override void Enter()
     {
         Debug.Log("Player Choose Action: ...Entering");
-        _playerTurnTextUI.gameObject.SetActive(true);
-        _playerChoiceTextUI.gameObject.SetActive(true);
+        _playerUI.SetActive(true);
 
         _playerTurnCount++;
         _playerTurnTextUI.text = "Player Turn: " + _playerTurnCount.ToString();
@@ -28,12 +33,8 @@ public class PlayerTurnPlanState : BattleState
 
     public override void Exit()
     {
-        if (_playerTurnTextUI != null)
-        {
-            _playerTurnTextUI.gameObject.SetActive(false);
-        }
-        if(_playerChoiceTextUI != null)
-            _playerChoiceTextUI.gameObject.SetActive(false);
+        if(_playerUI != null)
+            _playerUI.SetActive(false);
         //unhook from events
         StateMachine.Input.PressedConfirm -= OnPressedConfirm;
 
@@ -52,6 +53,7 @@ public class PlayerTurnPlanState : BattleState
         //alter stage after attack
         StateMachine.attackPlan = "nothing";
         _playerChoiceTextUI.text = "Player's Action: "+ StateMachine.attackPlan;
+        _selectionBorder.transform.position = _magicButton.transform.position;
     }
 
     void OnPressedRight()
@@ -59,6 +61,7 @@ public class PlayerTurnPlanState : BattleState
         //alter stage after attack
         StateMachine.attackPlan = "lose";
         _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+        _selectionBorder.transform.position = _defendButton.transform.position;
     }
 
     void OnPressedUp()
@@ -66,5 +69,6 @@ public class PlayerTurnPlanState : BattleState
         //alter stage after attack
         StateMachine.attackPlan = "win";
         _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+        _selectionBorder.transform.position = _attackButton.transform.position;
     }
 }

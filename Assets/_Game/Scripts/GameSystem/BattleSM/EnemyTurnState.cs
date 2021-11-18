@@ -8,7 +8,7 @@ public class EnemyTurnState : BattleState
     public static event Action EnemyTurnBegan;
     public static event Action EnemyTurnEnded;
 
-    [SerializeField] float _pauseDuration = 1.5f;
+    [SerializeField] float _pauseDuration = 2f;
     //[SerializeField] float _enemyHealth = 50f;
 
     public override void Enter()
@@ -38,7 +38,7 @@ public class EnemyTurnState : BattleState
 
     void AttackOutcome()
     {
-        if (StateMachine.attackPlan == "lose")
+        if (StateMachine.playersAlive <= 0)  //StateMachine.attackPlan == "lose"
         {
             StateMachine.ChangeState(StateMachine.Lose);
         }

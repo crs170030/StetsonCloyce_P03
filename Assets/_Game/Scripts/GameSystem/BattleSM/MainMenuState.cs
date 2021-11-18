@@ -14,6 +14,7 @@ public class MainMenuState : BattleState
         if (_mainTextUI != null)
             _mainTextUI.gameObject.SetActive(true);
 
+        StateMachine.BattleUI.SetActive(false);
         //hook into events
         _activated = false;
         Debug.Log("enter activated == " + _activated);

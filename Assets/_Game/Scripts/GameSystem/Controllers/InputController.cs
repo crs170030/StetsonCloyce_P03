@@ -19,6 +19,7 @@ public class InputController : MonoBehaviour
         DetectLeft();
         DetectRight();
         DetectUp();
+        DetectDown();
     }
 
     private void DetectConfirm()

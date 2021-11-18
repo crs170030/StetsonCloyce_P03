@@ -13,8 +13,14 @@ public class SetupBattleState : BattleState
     {
         Debug.Log("Setup: ...Entering");
         Debug.Log("Starting a battle with " + _numberOfEnemies + " enemies.");
-        //StateMachine.enemiesLeft = _numberOfEnemies;
-        //StateMachine.playerHealth = _playerStartHealth;
+        StateMachine.enemiesLeft = _numberOfEnemies;
+        StateMachine.BattleUI.SetActive(true);
+        //restore health of all
+        var entities = FindObjectsOfType<HealthBase>();
+        foreach (HealthBase hb in entities)
+        {
+            hb.restoreHealth();
+        }
         //Cant change state while in Enter or Exit
         //don't but change state here
         _activated = false;

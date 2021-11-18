@@ -29,6 +29,7 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
     {
         currentHealth = maxHealth;
         Healed.Invoke(maxHealth);
+        //Debug.Log(this.name + " health restored!");
     }
 
     public void AtHalfHeath()

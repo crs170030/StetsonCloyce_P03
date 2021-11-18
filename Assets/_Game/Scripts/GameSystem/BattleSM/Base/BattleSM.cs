@@ -17,11 +17,15 @@ public class BattleSM : StateMachineMB
     public MainMenuState MainMenu { get; private set; }
 
     [SerializeField] InputController _input = null;
+    [SerializeField] GameObject _battleUI = null;
     public InputController Input => _input;
+    public GameObject BattleUI => _battleUI;
 
     //public int enemiesLeft = 0; //used to determine win con
     //public float playerHealth = 100; //TODO: Replace with health tracking for 3 characters
     public string attackPlan = "nothing";
+    public int enemiesLeft = 0;
+    public int playersAlive = 3;
 
     private void Awake()
     {

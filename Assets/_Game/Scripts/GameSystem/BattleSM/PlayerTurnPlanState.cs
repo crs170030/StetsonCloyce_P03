@@ -51,6 +51,7 @@ public class PlayerTurnPlanState : BattleState
         _selectionEnemy.gameObject.SetActive(false);
 
         activeTargetNum = 0;
+        Debug.Log("first enemy = " + enemies[activeTargetNum]);
 
         _playerTurnCount++;
         _playerTurnTextUI.text = "Player Turn: " + _playerTurnCount.ToString();
@@ -88,7 +89,10 @@ public class PlayerTurnPlanState : BattleState
             _actionUI.SetActive(false);
             _selectionEnemy.gameObject.SetActive(true);
             if (enemies.Length > 0)
+            {
                 activeTarget = enemies[0];
+                SetCharacterTarget(activeTarget);
+            }
         }
         else
         {
@@ -96,15 +100,23 @@ public class PlayerTurnPlanState : BattleState
             switch (activeCharNum)
             {
                 case 1://go to character 2
-                    activeCharNum = 2;
+                    /*
                     if (_char2 != null)
+                    {
+                        activeCharNum = 2;
                         activeChar = _char2;
+                    }*/
+                    SetNextActiveChar(2, true);
                     break;
 
                 case 2://go to character 3
-                    activeCharNum = 3;
+                    /*
                     if (_char3 != null)
+                    {
+                        activeCharNum = 3;
                         activeChar = _char3;
+                    }*/
+                    SetNextActiveChar(3, true);
                     break;
 
                 case 3://go to attack phase
@@ -129,16 +141,20 @@ public class PlayerTurnPlanState : BattleState
                 case 1://cant go back further
                     break;
 
-                case 2://go to character 1
-                    activeCharNum = 1;
+                case 2://go to character 1  
                     if (_char1 != null)
+                    {
+                        activeCharNum = 1;
                         activeChar = _char1;
+                    }
                     break;
 
                 case 3://go to character 2
-                    activeCharNum = 2;
                     if (_char2 != null)
+                    {
+                        activeCharNum = 2;
                         activeChar = _char2;
+                    }
                     break;
             }
             _selectionPlayer.transform.position = activeChar.transform.position;
@@ -190,9 +206,9 @@ public class PlayerTurnPlanState : BattleState
 
     void OnPressedUp()
     {
-        if(selectMode == 1)
+        if (selectMode == 1)
         {
-            if(activeTargetNum <= enemies.Length - 2)
+            if (activeTargetNum <= enemies.Length - 2)
             {
                 //Debug.Log("set target to higher in list");
                 activeTargetNum++;
@@ -265,6 +281,72 @@ public class PlayerTurnPlanState : BattleState
         if (targetHB != null) {
             //activeChar.TargetGroup[0] = targetHB;
             activeChar.AddTarget(targetHB);
+        }
+    }
+
+    void SetNextActiveChar(int nextCharNum = 1, bool forward = true)
+    {
+        switch (nextCharNum)
+        {
+            case 1:
+                if (_char1 == null)
+                    break;
+
+                if (_char1.alive)
+                {
+                    activeCharNum = 1;
+                    activeChar = _char1;
+                }
+                else
+                {
+                    if (forward)
+                    {
+                        nextCharNum = 2;
+                        SetNextActiveChar(nextCharNum, forward);
+                    }
+                }
+                break;
+
+            case 2:
+                if (_char2 == null)
+                    break;
+
+                if (_char2.alive)
+                {
+                    activeCharNum = 2;
+                    activeChar = _char2;
+                }
+                else
+                {
+                    if (forward)
+                        nextCharNum = 3;
+                    else
+                        nextCharNum = 1;
+
+                    SetNextActiveChar(nextCharNum, forward);
+                }
+                break;
+
+            case 3:
+                if (_char3 == null)
+                    break;
+
+                if (_char3.alive)
+                {
+                    activeCharNum = 3;
+                    activeChar = _char3;
+                }
+                else
+                {
+                    if (!forward)
+                    {
+                        nextCharNum = 2;
+                        SetNextActiveChar(nextCharNum, forward);
+                    }
+
+                    break;
+                }
+                break;
         }
     }
 }

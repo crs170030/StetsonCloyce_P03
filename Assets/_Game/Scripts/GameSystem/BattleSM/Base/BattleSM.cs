@@ -26,6 +26,8 @@ public class BattleSM : StateMachineMB
     public string attackPlan = "nothing";
     public int enemiesLeft = 0;
     public int playersAlive = 3;
+    CharacterBase[] players = null;
+    HealthBase hb = null;
 
     private void Awake()
     {
@@ -39,10 +41,24 @@ public class BattleSM : StateMachineMB
         Win = GetComponent<WinState>();
         Lose = GetComponent<LoseState>();
         MainMenu = GetComponent<MainMenuState>();
+
+        //get alerted for player deaths
+        players = FindObjectsOfType<CharacterBase>();
+        foreach(CharacterBase charBase in players){
+            hb = charBase.GetComponent<HealthBase>();
+            if (hb != null)
+                hb.OnDeath += HandleDeath;
+        }
     }
 
-   private void Start()
+    private void Start()
     {
         ChangeState(MainMenu);
+    }
+
+    void HandleDeath()
+    {
+        playersAlive -= 1;
+        Debug.Log("players Alive == " + playersAlive);
     }
 }

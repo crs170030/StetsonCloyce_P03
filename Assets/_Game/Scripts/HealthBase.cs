@@ -19,6 +19,8 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
     public event Action<float> Damaged = delegate { };
     public event Action<float> Healed = delegate { };
     public event Action<int> HalfHealth = delegate { };
+    public delegate void DeathEvent();
+    public event DeathEvent OnDeath;
 
     void Start()
     {
@@ -30,6 +32,12 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
         currentHealth = maxHealth;
         Healed.Invoke(maxHealth);
         //Debug.Log(this.name + " health restored!");
+        var charBase = GetComponent<CharacterBase>();
+        if (charBase != null)
+        {
+            charBase.alive = true;
+            charBase.ToggleAppearance();
+        }
     }
 
     public void AtHalfHeath()
@@ -69,6 +77,7 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
     {
         //time to die
         //Debug.Log("You've... killed me... The Great " + this.name);
+        OnDeath?.Invoke();
 
         if (_deathEffect != null)
         {
@@ -82,7 +91,19 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
             AudioHelper.PlayClip2D(_deathSound, 1f);
         }
 
-        Destroy(gameObject, .2f);
+        //if player, then change sprite and disable actions
+        //else, destroy
+        var charBase = GetComponent<CharacterBase>();
+        if(charBase != null)
+        {
+            Debug.Log("Player " + this.name + " has fallen!");
+            charBase.alive = false;
+            charBase.ToggleAppearance();
+        }
+        else
+        {
+            Destroy(gameObject, 1f);
+        }
     }
 
     private IEnumerator flashArt(GameObject artGroup)

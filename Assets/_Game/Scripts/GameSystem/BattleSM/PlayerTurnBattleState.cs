@@ -11,12 +11,13 @@ public class PlayerTurnBattleState : BattleState
 
     [SerializeField] Text _playerTurnTextUI = null;
 
-    [SerializeField] float _pauseDuration = 1f;
+    [SerializeField] float _pauseDuration = 2f;
     [SerializeField] CharacterBase _char1 = null;
     [SerializeField] CharacterBase _char2 = null;
     [SerializeField] CharacterBase _char3 = null;
     int activeCharNum = 1;
     CharacterBase activeChar = null;
+    EnemyBase[] enemies = null;
 
     bool _activated = false;
 
@@ -27,6 +28,7 @@ public class PlayerTurnBattleState : BattleState
 
         activeCharNum = 1;
         CharacterBase activeChar = _char1;
+        enemies = null;
         if (_playerTurnTextUI != null)
         {
             _playerTurnTextUI.gameObject.SetActive(true);
@@ -43,12 +45,14 @@ public class PlayerTurnBattleState : BattleState
             _activated = true;
             //StateMachine.ChangeState(StateMachine.PlanState);
             StartCoroutine(PlayerAttackingRoutine(_pauseDuration));
+            Debug.Log("Player Attack: ...Updating...");
         }
-        Debug.Log("Player Attack: ...Updating...");
+        //Debug.Log("Player Attack: ...Updating...");
     }
 
     public override void Exit()
     {
+        _activated = false;
         if (_playerTurnTextUI != null)
             _playerTurnTextUI.gameObject.SetActive(false);
         Debug.Log("Player Attack: Exiting...");
@@ -56,7 +60,7 @@ public class PlayerTurnBattleState : BattleState
 
     IEnumerator PlayerAttackingRoutine(float pauseDuration)
     {
-        while (activeCharNum < 4) {
+        while (activeCharNum <= 3) {
             switch (activeCharNum)
             {
                 case 1: activeChar = _char1;
@@ -72,21 +76,44 @@ public class PlayerTurnBattleState : BattleState
             Debug.Log("The player " + activeChar.name + " prepares to attack...");
             yield return new WaitForSeconds(pauseDuration);
             
-            Debug.Log("The player attacks!");
-            PlayerAttackTurnEnded?.Invoke();
-            //turn over. go to enemy's turn
-            //StateMachine.ChangeState(StateMachine.EnemyAttackState);
-            AttackOutcome();
+            Debug.Log(activeChar.name + " attacks!");
+
+            Attack();
+            yield return new WaitForSeconds(pauseDuration);
+            Outcome();
         }
     }
 
-    void AttackOutcome()
+    void Attack()
     {
         //check if target's health will kill it.
         //if so, then reduce the amount of battle sm enemies by 1
 
+        // check if the player's target is still alive
+        // if not, then assign to first enemy on list
+        Debug.Log("Player "+ activeChar +" Target Group == " + activeChar.TargetGroup[0]);
+        if (activeChar.TargetGroup[0] == null) {
+            EnemyBase newEnemy = FindObjectOfType<EnemyBase>();
+            HealthBase newEnemyHB = null;
+            if(newEnemy != null)
+                newEnemyHB = newEnemy.GetComponent<HealthBase>();
+            if(newEnemyHB != null)
+            {
+                activeChar.AddTarget(newEnemyHB);
+            }
+        }
+
         //call the player attack method
         activeChar.BaseAttack();
+        activeCharNum++;
+    }
+
+    void Outcome()
+    {
+        //check for num enemies in game, set enemies left to that number
+        enemies = FindObjectsOfType<EnemyBase>();
+        StateMachine.enemiesLeft = enemies.Length;
+        Debug.Log("Enemies array length: " + enemies.Length + ". EnemiesLeft = " + StateMachine.enemiesLeft);
 
         if (StateMachine.enemiesLeft <= 0)//StateMachine.attackPlan == "win"
         {
@@ -95,7 +122,10 @@ public class PlayerTurnBattleState : BattleState
         else
         {
             //continue loop
-            StateMachine.ChangeState(StateMachine.EnemyAttackState);
+            if (activeCharNum >= 4)
+                StateMachine.ChangeState(StateMachine.EnemyAttackState);
         }
+
+        PlayerAttackTurnEnded?.Invoke();
     }
 }

@@ -7,9 +7,10 @@ public class CharacterBase : MonoBehaviour, ICharacterCommand
     public string _attackPlan = "none";
     public float baseDamage = 25;
     public float spellCost = 25;
+    public bool alive = true;
     //float mana = 0;
     //float maxMana = 50;
-    HealthBase[] TargetGroup = null;
+    public HealthBase[] TargetGroup = null;
 
     // Start is called before the first frame update
     void Start()
@@ -74,5 +75,18 @@ public class CharacterBase : MonoBehaviour, ICharacterCommand
     {
         //TargetGroup.Clear();
         TargetGroup = null;
+    }
+
+    public void ToggleAppearance()
+    {
+        //change sprite if the player is dead
+        if (alive)
+        {
+
+        }
+        else
+        {
+
+        }
     }
 }

@@ -11,16 +11,33 @@ public class EnemyTurnState : BattleState
     [SerializeField] float _pauseDuration = 2f;
     //[SerializeField] float _enemyHealth = 50f;
 
+    bool _activated = false;
+
     public override void Enter()
     {
         Debug.Log("Enemy Turn: ...Enter");
         EnemyTurnBegan?.Invoke();
 
-        StartCoroutine(EnemyThinkingRoutine(_pauseDuration));
+        _activated = false;
+    }
+
+    public override void Tick()
+    {
+        StateDuration += Time.deltaTime;
+        //bad method: makes delays
+        if (_activated == false)
+        {
+            _activated = true;
+            //StateMachine.ChangeState(StateMachine.PlanState);
+            StartCoroutine(EnemyThinkingRoutine(_pauseDuration));
+            Debug.Log("Enemy Turn: ...Updating...");
+        }
+        //Debug.Log("Enemy Turn: ...Updating...");
     }
 
     public override void Exit()
     {
+        _activated = false;
         Debug.Log("Enemy Turn: Exit...");
     }
 
@@ -33,10 +50,17 @@ public class EnemyTurnState : BattleState
         EnemyTurnEnded?.Invoke();
         //turn over. go back to player
         //StateMachine.ChangeState(StateMachine.PlanState);
-        AttackOutcome();
+        Attack();
+        yield return new WaitForSeconds(pauseDuration);
+        Outcome();
     }
 
-    void AttackOutcome()
+    void Attack()
+    {
+        
+    }
+
+    void Outcome()
     {
         if (StateMachine.playersAlive <= 0)  //StateMachine.attackPlan == "lose"
         {

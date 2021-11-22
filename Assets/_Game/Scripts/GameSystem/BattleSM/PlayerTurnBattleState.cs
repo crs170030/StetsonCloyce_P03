@@ -73,15 +73,25 @@ public class PlayerTurnBattleState : BattleState
                     break;
             }
 
-            Debug.Log("The player " + activeChar.name + " prepares to attack...");
-            yield return new WaitForSeconds(pauseDuration);
-            
-            Debug.Log(activeChar.name + " attacks!");
+            if (!activeChar.defending)
+            {
+                Debug.Log("The player " + activeChar.name + " prepares to attack...");
+                yield return new WaitForSeconds(pauseDuration);
 
-            Attack();
-            yield return new WaitForSeconds(pauseDuration);
+                Debug.Log(activeChar.name + " attacks!");
+
+                Attack();
+                yield return new WaitForSeconds(pauseDuration);
+            }
+            else
+            {
+                Debug.Log("The player " + activeChar.name + " holds a defensive stance...");
+                yield return new WaitForSeconds(pauseDuration);
+            }
+            activeCharNum++;
             Outcome();
         }
+        PlayerAttackTurnEnded?.Invoke();
     }
 
     void Attack()
@@ -105,7 +115,6 @@ public class PlayerTurnBattleState : BattleState
 
         //call the player attack method
         activeChar.BaseAttack();
-        activeCharNum++;
     }
 
     void Outcome()

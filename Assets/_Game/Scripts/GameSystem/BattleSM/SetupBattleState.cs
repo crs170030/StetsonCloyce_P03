@@ -20,8 +20,8 @@ public class SetupBattleState : BattleState
 
     public override void Enter()
     {
-        Debug.Log("Setup: ...Entering");
-        Debug.Log("Starting a battle with " + _numberOfEnemies + " enemies.");
+        //Debug.Log("Setup: ...Entering");
+        //Debug.Log("Starting a battle with " + _numberOfEnemies + " enemies.");
         StateMachine.enemiesLeft = _numberOfEnemies;
         StateMachine.BattleUI.SetActive(true);
 
@@ -47,13 +47,13 @@ public class SetupBattleState : BattleState
             StateMachine.ChangeState(StateMachine.PlanState);
             //Debug.Log("Setup: ...Updating...");
         }
-        Debug.Log("Setup: ...Updating...");
+        //Debug.Log("Setup: ...Updating...");
     }
 
     public override void Exit()
     {
         _activated = false;
-        Debug.Log("Setup: Exiting...");
+        //Debug.Log("Setup: Exiting...");
     }
 
     void SpawnCharacters()

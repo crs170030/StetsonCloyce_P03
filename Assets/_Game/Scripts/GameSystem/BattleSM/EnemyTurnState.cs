@@ -11,12 +11,24 @@ public class EnemyTurnState : BattleState
     [SerializeField] float _pauseDuration = 2f;
     //[SerializeField] float _enemyHealth = 50f;
 
+    EnemyBase[] enemies = null;
+    EnemyBase activeEnemy = null;
+    int activeEnemyNum = 0;
+    CharacterBase[] characters = null;
     bool _activated = false;
+    bool foundTarget = false;
+    CharacterBase target = null;
 
     public override void Enter()
     {
         Debug.Log("Enemy Turn: ...Enter");
         EnemyTurnBegan?.Invoke();
+
+        //get all alive enemies
+        enemies = FindObjectsOfType<EnemyBase>();
+        activeEnemyNum = 0;
+        //get all alive players
+        characters = FindObjectsOfType<CharacterBase>();
 
         _activated = false;
     }
@@ -44,20 +56,53 @@ public class EnemyTurnState : BattleState
     IEnumerator EnemyThinkingRoutine(float pauseDuration)
     {
         Debug.Log("Enemy thinking...");
-        yield return new WaitForSeconds(pauseDuration);
-
-        Debug.Log("Enemy performs action");
-        EnemyTurnEnded?.Invoke();
+        
         //turn over. go back to player
         //StateMachine.ChangeState(StateMachine.PlanState);
-        Attack();
-        yield return new WaitForSeconds(pauseDuration);
-        Outcome();
+        for (activeEnemyNum = 0; activeEnemyNum < enemies.Length; activeEnemyNum++) {
+            //activeEnemy = i;
+            yield return new WaitForSeconds(pauseDuration);
+            Debug.Log("Enemy "+ activeEnemyNum +" performs action");
+            foundTarget = false;
+            Attack();
+            yield return new WaitForSeconds(pauseDuration);
+            Outcome();
+        }
+        EnemyTurnEnded?.Invoke();
+        StateMachine.ChangeState(StateMachine.PlanState);
     }
 
     void Attack()
     {
-        
+        //randomly select number between 1 and 3
+        //check if selected player number is alive
+        //if they are, then attack
+        //else, repeat
+        while(!foundTarget)
+        {
+            var targetNum = (int)UnityEngine.Random.Range(0, 3);
+            activeEnemy = enemies[activeEnemyNum];
+            target = characters[targetNum];
+            Debug.Log("Targeting player " + targetNum + ". Who is " + target);
+            if (target != null && target.alive)
+            {
+                foundTarget = true;
+                var hb = target.GetComponent<HealthBase>();
+                if(hb != null)
+                {
+                    activeEnemy.AddTarget(hb);
+                    //check if they are defending
+                    if(target.defending)
+                        activeEnemy.BaseAttack(activeEnemy.baseDamage / target.defense);
+                    else
+                        activeEnemy.BaseAttack(activeEnemy.baseDamage);
+                }
+                else
+                {
+                    Debug.Log("Warning: Character " + target + " hb is null!");
+                }
+            }
+        }
     }
 
     void Outcome()
@@ -68,8 +113,10 @@ public class EnemyTurnState : BattleState
         }
         else
         {
-            //continue loop
-            StateMachine.ChangeState(StateMachine.PlanState);
+            if (activeEnemyNum >= enemies.Length) { 
+                //continue loop
+                StateMachine.ChangeState(StateMachine.PlanState);
+            }
         }
     }
 }

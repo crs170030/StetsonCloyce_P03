@@ -40,8 +40,7 @@ public class PlayerTurnPlanState : BattleState
         Debug.Log("Player Choose Action: ...Entering");
         _playerUI.SetActive(true);
         _actionUI.SetActive(true);
-        activeCharNum = 1;
-        activeChar = _char1;
+        SetNextActiveChar(1, true);
         selectMode = 0;
         _selectionPlayer.transform.position = activeChar.transform.position;
         //_selectionBorder.transform.position = _attackButton.transform.position;
@@ -90,9 +89,11 @@ public class PlayerTurnPlanState : BattleState
             _selectionEnemy.gameObject.SetActive(true);
             if (enemies.Length > 0)
             {
-                activeTarget = enemies[0];
+                activeTarget = enemies[enemies.Length-1];
                 SetCharacterTarget(activeTarget);
             }
+            if (activeChar.defending)
+                OnPressedConfirm();
         }
         else
         {
@@ -141,26 +142,32 @@ public class PlayerTurnPlanState : BattleState
                 case 1://cant go back further
                     break;
 
-                case 2://go to character 1  
+                case 2://go to character 1 
+                    /*
                     if (_char1 != null)
                     {
                         activeCharNum = 1;
                         activeChar = _char1;
-                    }
+                    }*/
+                    SetNextActiveChar(1, false);
                     break;
 
                 case 3://go to character 2
+                    /*
                     if (_char2 != null)
                     {
                         activeCharNum = 2;
                         activeChar = _char2;
-                    }
+                    }*/
+                    SetNextActiveChar(2, false);
                     break;
             }
             _selectionPlayer.transform.position = activeChar.transform.position;
             _actionUI.SetActive(false);
             _selectionEnemy.gameObject.SetActive(true);
             selectMode = 1;
+            if (activeChar.defending)
+                OnPressedCancel();
         }
         else
         {
@@ -184,6 +191,11 @@ public class PlayerTurnPlanState : BattleState
                 //go to attack button
                 SetActiveButtonValues("attack");
             }
+            else if (_selectionBorder.transform.position == _attackButton.transform.position)
+            {
+                //go to defend button
+                SetActiveButtonValues("defend");
+            }
         }
     }
 
@@ -200,6 +212,11 @@ public class PlayerTurnPlanState : BattleState
             {
                 //go to defend button
                 SetActiveButtonValues("defend");
+            }
+            else if (_selectionBorder.transform.position == _defendButton.transform.position)
+            {
+                //go to attack button
+                SetActiveButtonValues("attack");
             }
         }
     }
@@ -253,6 +270,7 @@ public class PlayerTurnPlanState : BattleState
                 _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
                 _selectionBorder.transform.position = _attackButton.transform.position;
                 activeChar._attackPlan = "attack";
+                activeChar.defending = false;
                 break;
 
             case "magic":
@@ -261,6 +279,7 @@ public class PlayerTurnPlanState : BattleState
                 _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
                 _selectionBorder.transform.position = _magicButton.transform.position;
                 activeChar._attackPlan = "magic";
+                activeChar.defending = false;
                 break;
 
             case "defend":
@@ -269,6 +288,7 @@ public class PlayerTurnPlanState : BattleState
                 _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
                 _selectionBorder.transform.position = _defendButton.transform.position;
                 activeChar._attackPlan = "defend";
+                activeChar.defending = true;
                 break;
         }
     }
@@ -343,10 +363,15 @@ public class PlayerTurnPlanState : BattleState
                         nextCharNum = 2;
                         SetNextActiveChar(nextCharNum, forward);
                     }
-
-                    break;
+                    else
+                    {
+                        //go to attack phase
+                        Debug.Log("Attempt to Enter Player Attack State!");
+                        StateMachine.ChangeState(StateMachine.PlayerAttackState);
+                    }
                 }
                 break;
         }
+        SetActiveButtonValues("attack");
     }
 }

@@ -8,6 +8,8 @@ public class CharacterBase : MonoBehaviour, ICharacterCommand
     public float baseDamage = 25;
     public float spellCost = 25;
     public bool alive = true;
+    public bool defending = false;
+    public float defense = 3;
     //float mana = 0;
     //float maxMana = 50;
     public HealthBase[] TargetGroup = null;

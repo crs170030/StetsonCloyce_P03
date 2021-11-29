@@ -141,7 +141,7 @@ MonoBehaviour:
   maxHealth: 50
   _artGroup: {fileID: 7458133727329024601}
   _deathEffect: {fileID: 0}
-  _deathSound: {fileID: 0}
-  _hurtSound: {fileID: 0}
+  _deathSound: {fileID: 8300000, guid: 85585b9ad960d3e4d8f7449b1abf77ca, type: 3}
+  _hurtSound: {fileID: 8300000, guid: fed4ab7b2c0007b4db209206a6cd67f9, type: 3}
   currentHealth: 0
   flashActive: 1

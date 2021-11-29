@@ -18,10 +18,11 @@ public class EnemyTurnState : BattleState
     bool _activated = false;
     bool foundTarget = false;
     CharacterBase target = null;
+    float hmove = 50f;
 
     public override void Enter()
     {
-        Debug.Log("Enemy Turn: ...Enter");
+        //Debug.Log("Enemy Turn: ...Enter");
         EnemyTurnBegan?.Invoke();
 
         //get all alive enemies
@@ -42,7 +43,7 @@ public class EnemyTurnState : BattleState
             _activated = true;
             //StateMachine.ChangeState(StateMachine.PlanState);
             StartCoroutine(EnemyThinkingRoutine(_pauseDuration));
-            Debug.Log("Enemy Turn: ...Updating...");
+            //Debug.Log("Enemy Turn: ...Updating...");
         }
         //Debug.Log("Enemy Turn: ...Updating...");
     }
@@ -50,26 +51,34 @@ public class EnemyTurnState : BattleState
     public override void Exit()
     {
         _activated = false;
-        Debug.Log("Enemy Turn: Exit...");
+        //Debug.Log("Enemy Turn: Exit...");
     }
 
     IEnumerator EnemyThinkingRoutine(float pauseDuration)
     {
-        Debug.Log("Enemy thinking...");
+        //Debug.Log("Enemy thinking...");
         
         //turn over. go back to player
         //StateMachine.ChangeState(StateMachine.PlanState);
         for (activeEnemyNum = 0; activeEnemyNum < enemies.Length; activeEnemyNum++) {
-            //activeEnemy = i;
+            activeEnemy = enemies[activeEnemyNum];
+            //move active enemy forward a bit
+            activeEnemy.transform.position = activeEnemy.transform.position + new Vector3(-hmove, 0, 0);
+
             yield return new WaitForSeconds(pauseDuration);
-            Debug.Log("Enemy "+ activeEnemyNum +" performs action");
+            //Debug.Log("Enemy "+ activeEnemyNum +" performs action");
             foundTarget = false;
             Attack();
             yield return new WaitForSeconds(pauseDuration);
             Outcome();
+
+            //move active enemy back
+            activeEnemy.transform.position = activeEnemy.transform.position + new Vector3(hmove, 0, 0);
         }
+        //yield return new WaitForSeconds(pauseDuration/2);
         EnemyTurnEnded?.Invoke();
-        StateMachine.ChangeState(StateMachine.PlanState);
+        if(StateMachine.playersAlive > 0)
+            StateMachine.ChangeState(StateMachine.PlanState);
     }
 
     void Attack()
@@ -78,12 +87,12 @@ public class EnemyTurnState : BattleState
         //check if selected player number is alive
         //if they are, then attack
         //else, repeat
-        while(!foundTarget)
+        while(!foundTarget && StateMachine.playersAlive > 0)
         {
             var targetNum = (int)UnityEngine.Random.Range(0, 3);
-            activeEnemy = enemies[activeEnemyNum];
+            //activeEnemy = enemies[activeEnemyNum];
             target = characters[targetNum];
-            Debug.Log("Targeting player " + targetNum + ". Who is " + target);
+            //Debug.Log("Targeting player " + targetNum + ". Who is " + target);
             if (target != null && target.alive)
             {
                 foundTarget = true;
@@ -109,6 +118,7 @@ public class EnemyTurnState : BattleState
     {
         if (StateMachine.playersAlive <= 0)  //StateMachine.attackPlan == "lose"
         {
+            activeEnemyNum = enemies.Length; //makes sure thinking loop doesn't run again!
             StateMachine.ChangeState(StateMachine.Lose);
         }
         else

@@ -12,22 +12,28 @@ public class PlayerTurnBattleState : BattleState
     [SerializeField] Text _playerTurnTextUI = null;
 
     [SerializeField] float _pauseDuration = 2f;
+
+    [SerializeField] AudioClip _attackSound = null;
+    [SerializeField] AudioClip _magicSound = null;
+    [SerializeField] AudioClip _defendSound = null;
+
     [SerializeField] CharacterBase _char1 = null;
     [SerializeField] CharacterBase _char2 = null;
     [SerializeField] CharacterBase _char3 = null;
     int activeCharNum = 1;
     CharacterBase activeChar = null;
     EnemyBase[] enemies = null;
+    float hmove = 50f;
 
     bool _activated = false;
 
     public override void Enter()
     {
-        Debug.Log("Player Attack: ...Entering");
+        //Debug.Log("Player Attack: ...Entering");
         PlayerAttackTurnBegan?.Invoke();
 
         activeCharNum = 1;
-        CharacterBase activeChar = _char1;
+        activeChar = _char1;
         enemies = null;
         if (_playerTurnTextUI != null)
         {
@@ -45,7 +51,7 @@ public class PlayerTurnBattleState : BattleState
             _activated = true;
             //StateMachine.ChangeState(StateMachine.PlanState);
             StartCoroutine(PlayerAttackingRoutine(_pauseDuration));
-            Debug.Log("Player Attack: ...Updating...");
+            //Debug.Log("Player Attack: ...Updating...");
         }
         //Debug.Log("Player Attack: ...Updating...");
     }
@@ -55,7 +61,7 @@ public class PlayerTurnBattleState : BattleState
         _activated = false;
         if (_playerTurnTextUI != null)
             _playerTurnTextUI.gameObject.SetActive(false);
-        Debug.Log("Player Attack: Exiting...");
+        //Debug.Log("Player Attack: Exiting...");
     }
 
     IEnumerator PlayerAttackingRoutine(float pauseDuration)
@@ -72,21 +78,31 @@ public class PlayerTurnBattleState : BattleState
                     activeChar = _char3;
                     break;
             }
-
-            if (!activeChar.defending)
+            if (activeChar.alive)
             {
-                Debug.Log("The player " + activeChar.name + " prepares to attack...");
-                yield return new WaitForSeconds(pauseDuration);
+                //move active player forward a bit
+                activeChar.transform.position = activeChar.transform.position + new Vector3(hmove, 0, 0);
 
-                Debug.Log(activeChar.name + " attacks!");
+                //Debug.Log(activeChar.name + " defending == " + activeChar.defending);
+                if (!activeChar.defending)
+                {
+                    //Debug.Log("The player " + activeChar.name + " prepares to attack...");
+                    yield return new WaitForSeconds(pauseDuration);
 
-                Attack();
-                yield return new WaitForSeconds(pauseDuration);
-            }
-            else
-            {
-                Debug.Log("The player " + activeChar.name + " holds a defensive stance...");
-                yield return new WaitForSeconds(pauseDuration);
+                    //Debug.Log(activeChar.name + " attacks!");
+
+                    Attack();
+                    yield return new WaitForSeconds(pauseDuration);
+                }
+                else
+                {
+                    //Debug.Log("The player " + activeChar.name + " holds a defensive stance...");
+                    AudioHelper.PlayClip2D(_defendSound, 1f);
+                    yield return new WaitForSeconds(pauseDuration);
+                }
+
+                //move player back to start position
+                activeChar.transform.position = activeChar.transform.position + new Vector3(-hmove, 0, 0);
             }
             activeCharNum++;
             Outcome();
@@ -101,7 +117,6 @@ public class PlayerTurnBattleState : BattleState
 
         // check if the player's target is still alive
         // if not, then assign to first enemy on list
-        Debug.Log("Player "+ activeChar +" Target Group == " + activeChar.TargetGroup[0]);
         if (activeChar.TargetGroup[0] == null) {
             EnemyBase newEnemy = FindObjectOfType<EnemyBase>();
             HealthBase newEnemyHB = null;
@@ -109,12 +124,24 @@ public class PlayerTurnBattleState : BattleState
                 newEnemyHB = newEnemy.GetComponent<HealthBase>();
             if(newEnemyHB != null)
             {
+                //Debug.Log("Player " + activeChar + " Target Group == " + activeChar.TargetGroup[0]);
                 activeChar.AddTarget(newEnemyHB);
             }
         }
-
-        //call the player attack method
-        activeChar.BaseAttack();
+        if (activeChar._attackPlan == "magic")
+        {
+            //call the player magic method
+            AudioHelper.PlayClip2D(_magicSound, 1f); 
+            //what if character spells have special sounds?
+            //in the future, move sounds to player characters
+            activeChar.MagicAttack();
+        }
+        else
+        {
+            //call the player attack method
+            AudioHelper.PlayClip2D(_attackSound, 1f);
+            activeChar.BaseAttack();
+        }
     }
 
     void Outcome()
@@ -122,7 +149,7 @@ public class PlayerTurnBattleState : BattleState
         //check for num enemies in game, set enemies left to that number
         enemies = FindObjectsOfType<EnemyBase>();
         StateMachine.enemiesLeft = enemies.Length;
-        Debug.Log("Enemies array length: " + enemies.Length + ". EnemiesLeft = " + StateMachine.enemiesLeft);
+        //Debug.Log("Enemies array length: " + enemies.Length + ". EnemiesLeft = " + StateMachine.enemiesLeft);
 
         if (StateMachine.enemiesLeft <= 0)//StateMachine.attackPlan == "win"
         {

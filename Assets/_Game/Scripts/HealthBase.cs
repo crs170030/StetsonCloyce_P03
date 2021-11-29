@@ -35,8 +35,9 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
         var charBase = GetComponent<CharacterBase>();
         if (charBase != null)
         {
-            charBase.alive = true;
-            charBase.ToggleAppearance();
+            charBase.Die(false);
+            //charBase.alive = true;
+            //charBase.ToggleAppearance();
         }
     }
 
@@ -96,13 +97,11 @@ public class HealthBase : MonoBehaviour, IDamageable<float>
         var charBase = GetComponent<CharacterBase>();
         if(charBase != null)
         {
-            Debug.Log("Player " + this.name + " has fallen!");
-            charBase.alive = false;
-            charBase.ToggleAppearance();
+            charBase.Die(true);
         }
         else
         {
-            Destroy(gameObject, 1f);
+            Destroy(gameObject, 0.5f);
         }
     }
 

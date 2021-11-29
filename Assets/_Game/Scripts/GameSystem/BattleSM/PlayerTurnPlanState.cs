@@ -14,12 +14,17 @@ public class PlayerTurnPlanState : BattleState
     [SerializeField] GameObject _actionUI = null;
     [SerializeField] Text _playerTurnTextUI = null; //TODO: Remove Text UI?
     [SerializeField] Text _playerChoiceTextUI = null;
+    [SerializeField] Text _magicCostTextUI = null;
     [SerializeField] Image _attackButton = null;
     [SerializeField] Image _magicButton = null;
     [SerializeField] Image _defendButton = null;
     [SerializeField] Image _selectionBorder = null;
     [SerializeField] Image _selectionPlayer = null;
     [SerializeField] Image _selectionEnemy = null;
+
+    [SerializeField] AudioClip _selectSound = null;
+    [SerializeField] AudioClip _confirmSound = null;
+    [SerializeField] AudioClip _noCanDoSound = null;
 
     [SerializeField] CharacterBase _char1 = null;
     [SerializeField] CharacterBase _char2 = null;
@@ -30,6 +35,7 @@ public class PlayerTurnPlanState : BattleState
     EnemyBase[] enemies = null;
     EnemyBase activeTarget = null;
     int activeTargetNum = 0;
+    public float defenseManaAmount = 20f;
 
     //[SerializeField] float _damageAmount = 25f;
 
@@ -37,7 +43,7 @@ public class PlayerTurnPlanState : BattleState
 
     public override void Enter()
     {
-        Debug.Log("Player Choose Action: ...Entering");
+        //Debug.Log("Player Choose Action: ...Entering");
         _playerUI.SetActive(true);
         _actionUI.SetActive(true);
         SetNextActiveChar(1, true);
@@ -50,7 +56,7 @@ public class PlayerTurnPlanState : BattleState
         _selectionEnemy.gameObject.SetActive(false);
 
         activeTargetNum = 0;
-        Debug.Log("first enemy = " + enemies[activeTargetNum]);
+        //Debug.Log("first enemy = " + enemies[activeTargetNum]);
 
         _playerTurnCount++;
         _playerTurnTextUI.text = "Player Turn: " + _playerTurnCount.ToString();
@@ -77,13 +83,29 @@ public class PlayerTurnPlanState : BattleState
         StateMachine.Input.PressedUp -= OnPressedUp;
         StateMachine.Input.PressedDown -= OnPressedDown;
 
-        Debug.Log("Player Choose Action: Exiting...");
+        //Debug.Log("Player Choose Action: Exiting...");
     }
 
     void OnPressedConfirm()
     {
         if (selectMode == 0)//0-select action, 1-select target
         {
+            //if selected magic, check if team mp is high enough
+            //if not, play sound
+            if (activeChar._attackPlan == "magic")
+            {
+                if (StateMachine.mana < activeChar.spellCost)
+                {
+                    AudioHelper.PlayClip2D(_noCanDoSound, .5f);
+                    return; //don't continue if magic is too low!
+                }
+                else
+                {
+                    StateMachine.mana -= activeChar.spellCost; //deduct magic points from total!
+                }
+            }
+            
+
             selectMode = 1;
             _actionUI.SetActive(false);
             _selectionEnemy.gameObject.SetActive(true);
@@ -93,7 +115,10 @@ public class PlayerTurnPlanState : BattleState
                 SetCharacterTarget(activeTarget);
             }
             if (activeChar.defending)
+            {
+                StateMachine.mana += defenseManaAmount;
                 OnPressedConfirm();
+            }
         }
         else
         {
@@ -101,27 +126,15 @@ public class PlayerTurnPlanState : BattleState
             switch (activeCharNum)
             {
                 case 1://go to character 2
-                    /*
-                    if (_char2 != null)
-                    {
-                        activeCharNum = 2;
-                        activeChar = _char2;
-                    }*/
                     SetNextActiveChar(2, true);
                     break;
 
                 case 2://go to character 3
-                    /*
-                    if (_char3 != null)
-                    {
-                        activeCharNum = 3;
-                        activeChar = _char3;
-                    }*/
                     SetNextActiveChar(3, true);
                     break;
 
                 case 3://go to attack phase
-                    Debug.Log("Attempt to Enter Player Attack State!");
+                    //Debug.Log("Attempt to Enter Player Attack State!");
                     StateMachine.ChangeState(StateMachine.PlayerAttackState);
                     break;
             }
@@ -130,6 +143,7 @@ public class PlayerTurnPlanState : BattleState
             _actionUI.SetActive(true);
             _selectionEnemy.gameObject.SetActive(false);
         }
+        AudioHelper.PlayClip2D(_confirmSound, .2f);
     }
 
     void OnPressedCancel()
@@ -143,22 +157,10 @@ public class PlayerTurnPlanState : BattleState
                     break;
 
                 case 2://go to character 1 
-                    /*
-                    if (_char1 != null)
-                    {
-                        activeCharNum = 1;
-                        activeChar = _char1;
-                    }*/
                     SetNextActiveChar(1, false);
                     break;
 
                 case 3://go to character 2
-                    /*
-                    if (_char2 != null)
-                    {
-                        activeCharNum = 2;
-                        activeChar = _char2;
-                    }*/
                     SetNextActiveChar(2, false);
                     break;
             }
@@ -167,7 +169,10 @@ public class PlayerTurnPlanState : BattleState
             _selectionEnemy.gameObject.SetActive(true);
             selectMode = 1;
             if (activeChar.defending)
+            {
+                StateMachine.mana -= defenseManaAmount;
                 OnPressedCancel();
+            }
         }
         else
         {
@@ -175,6 +180,8 @@ public class PlayerTurnPlanState : BattleState
             selectMode = 0;
             _actionUI.SetActive(true);
             _selectionEnemy.gameObject.SetActive(false);
+            if (activeChar._attackPlan == "magic")
+                StateMachine.mana += activeChar.spellCost;
         }
     }
 
@@ -262,12 +269,14 @@ public class PlayerTurnPlanState : BattleState
 
     void SetActiveButtonValues(string button)
     {
+        AudioHelper.PlayClip2D(_selectSound, .1f);
         switch (button)
         {
             case "attack":
                 //alter stage after attack
                 StateMachine.attackPlan = "win";
                 _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+                _magicCostTextUI.gameObject.SetActive(false);
                 _selectionBorder.transform.position = _attackButton.transform.position;
                 activeChar._attackPlan = "attack";
                 activeChar.defending = false;
@@ -280,17 +289,26 @@ public class PlayerTurnPlanState : BattleState
                 _selectionBorder.transform.position = _magicButton.transform.position;
                 activeChar._attackPlan = "magic";
                 activeChar.defending = false;
+
+                //show cost text
+                if(_magicCostTextUI != null)
+                {
+                    _magicCostTextUI.gameObject.SetActive(true);
+                    _magicCostTextUI.text = "Cost: " + activeChar.spellCost + " MP";
+                }
                 break;
 
             case "defend":
                 //alter stage after attack
                 StateMachine.attackPlan = "lose";
                 _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+                _magicCostTextUI.gameObject.SetActive(false);
                 _selectionBorder.transform.position = _defendButton.transform.position;
                 activeChar._attackPlan = "defend";
                 activeChar.defending = true;
                 break;
         }
+        //Debug.Log(activeChar + " set to " + button + ", defending == " + activeChar.defending);
     }
 
     void SetCharacterTarget(EnemyBase target)
@@ -316,6 +334,7 @@ public class PlayerTurnPlanState : BattleState
                 {
                     activeCharNum = 1;
                     activeChar = _char1;
+                    SetActiveButtonValues("attack");
                 }
                 else
                 {
@@ -335,6 +354,7 @@ public class PlayerTurnPlanState : BattleState
                 {
                     activeCharNum = 2;
                     activeChar = _char2;
+                    SetActiveButtonValues("attack");
                 }
                 else
                 {
@@ -355,6 +375,7 @@ public class PlayerTurnPlanState : BattleState
                 {
                     activeCharNum = 3;
                     activeChar = _char3;
+                    SetActiveButtonValues("attack");
                 }
                 else
                 {
@@ -366,12 +387,12 @@ public class PlayerTurnPlanState : BattleState
                     else
                     {
                         //go to attack phase
-                        Debug.Log("Attempt to Enter Player Attack State!");
+                        //Debug.Log("Attempt to Enter Player Attack State!");
                         StateMachine.ChangeState(StateMachine.PlayerAttackState);
                     }
                 }
                 break;
         }
-        SetActiveButtonValues("attack");
+        //SetActiveButtonValues("attack");
     }
 }

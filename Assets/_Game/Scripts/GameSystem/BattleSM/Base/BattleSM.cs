@@ -25,7 +25,8 @@ public class BattleSM : StateMachineMB
     //public float playerHealth = 100; //TODO: Replace with health tracking for 3 characters
     public string attackPlan = "nothing";
     public int enemiesLeft = 0;
-    public int playersAlive = 3;
+    public int playersAlive = 0;
+    public float mana = 0;
     CharacterBase[] players = null;
     HealthBase hb = null;
 
@@ -47,7 +48,10 @@ public class BattleSM : StateMachineMB
         foreach(CharacterBase charBase in players){
             hb = charBase.GetComponent<HealthBase>();
             if (hb != null)
+            {
                 hb.OnDeath += HandleDeath;
+                hb.Healed += HandleRevive;
+            }
         }
     }
 
@@ -59,6 +63,15 @@ public class BattleSM : StateMachineMB
     void HandleDeath()
     {
         playersAlive -= 1;
-        Debug.Log("players Alive == " + playersAlive);
+        Debug.Log("State Machine - Death: players Alive == " + playersAlive);
+    }
+
+    void HandleRevive(float maxHealth)
+    {
+        if (playersAlive < 3)
+        {
+            playersAlive += 1;
+            Debug.Log("State Machine - Revive: players Alive == " + playersAlive);
+        }
     }
 }

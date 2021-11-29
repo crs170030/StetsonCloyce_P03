@@ -58,6 +58,12 @@ public class SetupBattleState : BattleState
 
     void SpawnCharacters()
     {
+        //delete all enemies before creating new ones!
+        var enemies = FindObjectsOfType<EnemyBase>();
+        foreach(EnemyBase en in enemies){
+            Destroy(en);
+        }
+
         //spawn enemies
         var spawnY = 600;
         var spawnPosition = new Vector3(playerX, spawnY, 0);

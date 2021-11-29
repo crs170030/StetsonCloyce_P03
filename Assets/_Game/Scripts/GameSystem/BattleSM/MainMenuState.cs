@@ -6,19 +6,29 @@ using UnityEngine.UI;
 public class MainMenuState : BattleState
 {
     [SerializeField] Text _mainTextUI = null;
+    [SerializeField] AudioClip _menuMusic = null;
+    [SerializeField] AudioClip _battleMusic = null;
     bool _activated = false;
+    AudioSource audSauce = null;
 
     public override void Enter()
     {
-        Debug.Log("Main menu State: ...Entering");
+        //Debug.Log("Main menu State: ...Entering");
         if (_mainTextUI != null)
             _mainTextUI.gameObject.SetActive(true);
+
+        //play menu music
+        if(_menuMusic != null)
+        {
+            audSauce = AudioHelper.PlayClip2D(_menuMusic, .6f);
+        }
 
         StateMachine.BattleUI.SetActive(false);
         //hook into events
         _activated = false;
-        Debug.Log("enter activated == " + _activated);
+        //Debug.Log("enter activated == " + _activated);
         StateMachine.Input.PressedConfirm += OnPressedConfirm;
+        StateMachine.Input.PressedCancel += OnPressedCancel;
     }
 
     public override void Tick()
@@ -28,7 +38,7 @@ public class MainMenuState : BattleState
         if (_activated == false && StateDuration > 1)
         {
             _activated = true;
-            Debug.Log("update activated == " + _activated);
+            //Debug.Log("update activated == " + _activated);
         }
     }
 
@@ -38,8 +48,9 @@ public class MainMenuState : BattleState
             _mainTextUI.gameObject.SetActive(false);
         //unhook from events
         StateMachine.Input.PressedConfirm -= OnPressedConfirm;
+        StateMachine.Input.PressedCancel -= OnPressedCancel;
         _activated = false;
-        Debug.Log("Main Menu State: Exiting...");
+        //Debug.Log("Main Menu State: Exiting...");
     }
 
     void OnPressedConfirm()
@@ -48,8 +59,22 @@ public class MainMenuState : BattleState
         //change to player attack state
         if (_activated)
         {
-            Debug.Log("confirm activated == " + _activated);
+            //Debug.Log("confirm activated == " + _activated);
+            if (_battleMusic != null)
+            {
+                //play background music
+                //TODO: Make the music loop!!
+                audSauce.Stop();
+                AudioHelper.PlayClip2D(_battleMusic, .4f);
+            }
+
             StateMachine.ChangeState(StateMachine.SetupState); //TODO: Change scene and then go to state!
         }
+    }
+
+    void OnPressedCancel()
+    {
+        if (_activated)
+            Application.Quit();
     }
 }

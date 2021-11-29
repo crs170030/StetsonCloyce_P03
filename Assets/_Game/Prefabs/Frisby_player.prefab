@@ -64,7 +64,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 26f43716c7b8726429b51ef6893ff8ce, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 07623f0e25aee1c4a9c6d2b76add35b1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -120,8 +120,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _charImage: {fileID: 5724718165679265412}
-  _normalArt: {fileID: 21300000, guid: 26f43716c7b8726429b51ef6893ff8ce, type: 3}
-  _deadArt: {fileID: 21300000, guid: 951c1929714d34740a18db77d57bbfcc, type: 3}
+  _normalArt: {fileID: 21300000, guid: 07623f0e25aee1c4a9c6d2b76add35b1, type: 3}
+  _deadArt: {fileID: 21300000, guid: 4e591914221045c4ca18478656328efd, type: 3}
   _attackPlan: none
   baseDamage: 25
   spellCost: 25
@@ -145,7 +145,7 @@ MonoBehaviour:
   maxHealth: 100
   _artGroup: {fileID: 5724718165679265410}
   _deathEffect: {fileID: 0}
-  _deathSound: {fileID: 0}
-  _hurtSound: {fileID: 0}
+  _deathSound: {fileID: 8300000, guid: a67a39886472c604290af6b5e4067306, type: 3}
+  _hurtSound: {fileID: 8300000, guid: 4ecc8014da7130a4d8b4f23f50a05310, type: 3}
   currentHealth: 0
   flashActive: 1

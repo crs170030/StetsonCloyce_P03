@@ -3703,16 +3703,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 2938094405998229487, guid: 7f0706f003413154b9176fd650b55f28,
-        type: 3}
-      propertyPath: _deathSound
-      value: 
-      objectReference: {fileID: 8300000, guid: a67a39886472c604290af6b5e4067306, type: 3}
-    - target: {fileID: 2938094405998229487, guid: 7f0706f003413154b9176fd650b55f28,
-        type: 3}
-      propertyPath: _hurtSound
-      value: 
-      objectReference: {fileID: 8300000, guid: 4ecc8014da7130a4d8b4f23f50a05310, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 7f0706f003413154b9176fd650b55f28, type: 3}
 --- !u!1001 &3037205679418293585
@@ -3725,7 +3715,7 @@ PrefabInstance:
     - target: {fileID: 3037205679901997314, guid: 6556a8ec12639f440a59ea9f802ed990,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -300.5333
+      value: -290
       objectReference: {fileID: 0}
     - target: {fileID: 3037205679901997314, guid: 6556a8ec12639f440a59ea9f802ed990,
         type: 3}
@@ -3782,16 +3772,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Gus_player
       objectReference: {fileID: 0}
-    - target: {fileID: 3037205679901997316, guid: 6556a8ec12639f440a59ea9f802ed990,
-        type: 3}
-      propertyPath: _hurtSound
-      value: 
-      objectReference: {fileID: 8300000, guid: 4ecc8014da7130a4d8b4f23f50a05310, type: 3}
-    - target: {fileID: 3037205679901997316, guid: 6556a8ec12639f440a59ea9f802ed990,
-        type: 3}
-      propertyPath: _deathSound
-      value: 
-      objectReference: {fileID: 8300000, guid: a67a39886472c604290af6b5e4067306, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6556a8ec12639f440a59ea9f802ed990, type: 3}
 --- !u!1001 &5724718165735550321
@@ -3861,16 +3841,6 @@ PrefabInstance:
       propertyPath: m_Name
       value: Frisby_player
       objectReference: {fileID: 0}
-    - target: {fileID: 5724718166413658766, guid: 94062b99e13cb494e9b7e1ec92260f2f,
-        type: 3}
-      propertyPath: _deathSound
-      value: 
-      objectReference: {fileID: 8300000, guid: a67a39886472c604290af6b5e4067306, type: 3}
-    - target: {fileID: 5724718166413658766, guid: 94062b99e13cb494e9b7e1ec92260f2f,
-        type: 3}
-      propertyPath: _hurtSound
-      value: 
-      objectReference: {fileID: 8300000, guid: 4ecc8014da7130a4d8b4f23f50a05310, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 94062b99e13cb494e9b7e1ec92260f2f, type: 3}
 --- !u!114 &5724718165735550322 stripped

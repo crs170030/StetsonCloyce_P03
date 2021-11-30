@@ -34,7 +34,7 @@ public class BattleSM : StateMachineMB
     {
         //create my states
         //SetupState = new SetupBattleState
-        //();
+        //Debug.Log("BattleSM: Awaken my Masters!");
         SetupState = GetComponent<SetupBattleState>();
         PlanState = GetComponent<PlayerTurnPlanState>();
         PlayerAttackState = GetComponent<PlayerTurnBattleState>();
@@ -46,6 +46,7 @@ public class BattleSM : StateMachineMB
         //get alerted for player deaths
         players = FindObjectsOfType<CharacterBase>();
         foreach(CharacterBase charBase in players){
+            //Debug.Log("BattleSM: added " + charBase + " to players");
             hb = charBase.GetComponent<HealthBase>();
             if (hb != null)
             {

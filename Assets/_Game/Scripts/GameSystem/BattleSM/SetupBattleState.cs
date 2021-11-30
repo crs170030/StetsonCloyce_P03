@@ -14,8 +14,11 @@ public class SetupBattleState : BattleState
     */
     //[SerializeField] float _playerStartHealth = 100;
 
+    float enemyStartSpawnY = Screen.height - Screen.height/6;
+    float enemySpacing = Screen.height/5;
+    
     float playerX = -400;
-    float enemyX = 800;
+    float enemyX = Screen.width - Screen.width/5;
     bool _activated = false;
 
     public override void Enter()
@@ -65,7 +68,7 @@ public class SetupBattleState : BattleState
         }
 
         //spawn enemies
-        var spawnY = 600;
+        var spawnY = enemyStartSpawnY;
         var spawnPosition = new Vector3(playerX, spawnY, 0);
         var offsetX = 0;
 
@@ -80,7 +83,9 @@ public class SetupBattleState : BattleState
             //Instantiate(enemyPrefab, spawnPosition, Quaternion.identity, UIGroup);
             var inst = Instantiate(enemyPrefab, UIGroup);
             inst.transform.position = spawnPosition;
-            spawnY -= 160;
+            spawnY -= enemySpacing;
+            //move enemy to back of UI
+            inst.transform.SetAsFirstSibling();
         }
     }
 }

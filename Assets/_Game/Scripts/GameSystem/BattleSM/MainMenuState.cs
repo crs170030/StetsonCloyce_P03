@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class MainMenuState : BattleState
 {
-    [SerializeField] Text _mainTextUI = null;
+    [SerializeField] GameObject _mainUI = null;
     [SerializeField] AudioClip _menuMusic = null;
     [SerializeField] AudioClip _battleMusic = null;
     bool _activated = false;
@@ -14,8 +14,8 @@ public class MainMenuState : BattleState
     public override void Enter()
     {
         //Debug.Log("Main menu State: ...Entering");
-        if (_mainTextUI != null)
-            _mainTextUI.gameObject.SetActive(true);
+        if (_mainUI != null)
+            _mainUI.SetActive(true);
 
         //play menu music
         if(_menuMusic != null)
@@ -44,8 +44,8 @@ public class MainMenuState : BattleState
 
     public override void Exit()
     {
-        if (_mainTextUI != null)
-            _mainTextUI.gameObject.SetActive(false);
+        if (_mainUI != null)
+            _mainUI.SetActive(false);
         //unhook from events
         StateMachine.Input.PressedConfirm -= OnPressedConfirm;
         StateMachine.Input.PressedCancel -= OnPressedCancel;
@@ -65,7 +65,7 @@ public class MainMenuState : BattleState
                 //play background music
                 //TODO: Make the music loop!!
                 audSauce.Stop();
-                AudioHelper.PlayClip2D(_battleMusic, .4f);
+                AudioHelper.PlayClip2D(_battleMusic, .3f);
             }
 
             StateMachine.ChangeState(StateMachine.SetupState); //TODO: Change scene and then go to state!

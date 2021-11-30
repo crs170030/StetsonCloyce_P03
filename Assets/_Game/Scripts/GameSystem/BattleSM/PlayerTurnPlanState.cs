@@ -5,15 +5,10 @@ using UnityEngine.UI;
 
 public class PlayerTurnPlanState : BattleState
 {
-    /* TODO: Add a check to select magic for see if the character has enough mana
-     * Add a phase where the player chooses an enemy to target
-     * 
-     */
-
     [SerializeField] GameObject _playerUI = null;
     [SerializeField] GameObject _actionUI = null;
-    [SerializeField] Text _playerTurnTextUI = null; //TODO: Remove Text UI?
-    [SerializeField] Text _playerChoiceTextUI = null;
+    [SerializeField] Text _playerTurnTextUI = null;
+    //[SerializeField] Text _playerChoiceTextUI = null; //TODO: Remove Text UI?
     [SerializeField] Text _magicCostTextUI = null;
     [SerializeField] Image _attackButton = null;
     [SerializeField] Image _magicButton = null;
@@ -36,6 +31,7 @@ public class PlayerTurnPlanState : BattleState
     EnemyBase activeTarget = null;
     int activeTargetNum = 0;
     public float defenseManaAmount = 20f;
+    float buttonDistance = 20f;
 
     //[SerializeField] float _damageAmount = 25f;
 
@@ -154,14 +150,21 @@ public class PlayerTurnPlanState : BattleState
             switch (activeCharNum)
             {
                 case 1://cant go back further
-                    break;
+                    return;
+                    //break;
 
-                case 2://go to character 1 
+                case 2:
+                    //go to character 1 
                     SetNextActiveChar(1, false);
+                    //if (activeChar.defending)
+                        //StateMachine.mana -= defenseManaAmount; 
                     break;
 
-                case 3://go to character 2
+                case 3:
+                    //go to character 2
                     SetNextActiveChar(2, false);
+                    //if (activeChar.defending)
+                        //StateMachine.mana -= defenseManaAmount;
                     break;
             }
             _selectionPlayer.transform.position = activeChar.transform.position;
@@ -170,7 +173,10 @@ public class PlayerTurnPlanState : BattleState
             selectMode = 1;
             if (activeChar.defending)
             {
-                StateMachine.mana -= defenseManaAmount;
+                //try to make sure previous character is alive before removing mana
+                if((activeChar == _char2 && _char1.alive) || (activeChar == _char3 && _char2.alive) 
+                    || (activeChar == _char3 && _char1.alive) || activeChar == _char1)
+                    StateMachine.mana -= defenseManaAmount;
                 OnPressedCancel();
             }
         }
@@ -188,17 +194,17 @@ public class PlayerTurnPlanState : BattleState
     void OnPressedLeft()
     {
         if (selectMode == 0) { 
-            if (_selectionBorder.transform.position == _defendButton.transform.position)
+            if (Vector3.Distance(_selectionBorder.transform.position, _defendButton.transform.position) <= buttonDistance)
             {
                 //go to magic button
                 SetActiveButtonValues("magic");
             }
-            else if (_selectionBorder.transform.position == _magicButton.transform.position)
+            else if (Vector3.Distance(_selectionBorder.transform.position, _magicButton.transform.position) <= buttonDistance)
             {
                 //go to attack button
                 SetActiveButtonValues("attack");
             }
-            else if (_selectionBorder.transform.position == _attackButton.transform.position)
+            else if (Vector3.Distance(_selectionBorder.transform.position, _attackButton.transform.position) <= buttonDistance)
             {
                 //go to defend button
                 SetActiveButtonValues("defend");
@@ -210,17 +216,17 @@ public class PlayerTurnPlanState : BattleState
     {
         if (selectMode == 0)
         {
-            if (_selectionBorder.transform.position == _attackButton.transform.position)
+            if (Vector3.Distance(_selectionBorder.transform.position, _attackButton.transform.position) <= buttonDistance)
             {
                 //go to magic button
                 SetActiveButtonValues("magic");
             }
-            else if (_selectionBorder.transform.position == _magicButton.transform.position)
+            else if (Vector3.Distance(_selectionBorder.transform.position, _magicButton.transform.position) <= buttonDistance)
             {
                 //go to defend button
                 SetActiveButtonValues("defend");
             }
-            else if (_selectionBorder.transform.position == _defendButton.transform.position)
+            else if (Vector3.Distance(_selectionBorder.transform.position, _defendButton.transform.position) <= buttonDistance)
             {
                 //go to attack button
                 SetActiveButtonValues("attack");
@@ -275,7 +281,7 @@ public class PlayerTurnPlanState : BattleState
             case "attack":
                 //alter stage after attack
                 StateMachine.attackPlan = "win";
-                _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+                //_playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
                 _magicCostTextUI.gameObject.SetActive(false);
                 _selectionBorder.transform.position = _attackButton.transform.position;
                 activeChar._attackPlan = "attack";
@@ -285,7 +291,7 @@ public class PlayerTurnPlanState : BattleState
             case "magic":
                 //alter stage after attack
                 StateMachine.attackPlan = "nothing";
-                _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+                //_playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
                 _selectionBorder.transform.position = _magicButton.transform.position;
                 activeChar._attackPlan = "magic";
                 activeChar.defending = false;
@@ -301,7 +307,7 @@ public class PlayerTurnPlanState : BattleState
             case "defend":
                 //alter stage after attack
                 StateMachine.attackPlan = "lose";
-                _playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
+                //_playerChoiceTextUI.text = "Player's Action: " + StateMachine.attackPlan;
                 _magicCostTextUI.gameObject.SetActive(false);
                 _selectionBorder.transform.position = _defendButton.transform.position;
                 activeChar._attackPlan = "defend";
@@ -334,7 +340,8 @@ public class PlayerTurnPlanState : BattleState
                 {
                     activeCharNum = 1;
                     activeChar = _char1;
-                    SetActiveButtonValues("attack");
+                    if(forward)
+                        SetActiveButtonValues("attack");
                 }
                 else
                 {
@@ -354,7 +361,8 @@ public class PlayerTurnPlanState : BattleState
                 {
                     activeCharNum = 2;
                     activeChar = _char2;
-                    SetActiveButtonValues("attack");
+                    if (forward)
+                        SetActiveButtonValues("attack");
                 }
                 else
                 {
@@ -375,7 +383,8 @@ public class PlayerTurnPlanState : BattleState
                 {
                     activeCharNum = 3;
                     activeChar = _char3;
-                    SetActiveButtonValues("attack");
+                    if (forward)
+                        SetActiveButtonValues("attack");
                 }
                 else
                 {

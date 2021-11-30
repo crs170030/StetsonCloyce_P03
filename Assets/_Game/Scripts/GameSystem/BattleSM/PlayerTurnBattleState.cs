@@ -66,7 +66,7 @@ public class PlayerTurnBattleState : BattleState
 
     IEnumerator PlayerAttackingRoutine(float pauseDuration)
     {
-        while (activeCharNum <= 3) {
+        while (activeCharNum <= 3 && StateMachine.enemiesLeft > 0) {
             switch (activeCharNum)
             {
                 case 1: activeChar = _char1;
